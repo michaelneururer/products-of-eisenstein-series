@@ -1,5 +1,3 @@
-WORK IN PROGRESS
-
 products-of-eisenstein-series
 ===========
 
@@ -9,7 +7,6 @@ Based on the article 'Products of Eisenstein series and Fourier expansions of mo
 Requirements
 ============
 
-* Python
 * Sage
 
 Copyright
