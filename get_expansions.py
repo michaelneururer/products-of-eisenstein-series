@@ -16,20 +16,21 @@ from sage.arith.all import lcm, euler_phi
 
 product_space = CachedFunction(product_space)
 
-
 QQ = RationalField()
 Gamma0 = Gamma0_constructor
 Gamma1 = Gamma1_constructor
 
 load('eisenstein_series.py')
 
-def lin_comb(f, weights= False, verbose=False,base_ring=None):
+def lin_comb(f, weights= False, base_ring=None, hom=None, verbose=False):
     r"""
     Computes the a representation of a modular form f as a linear combination
     of products of Eisenstein series.
     INPUT:
     - f, a modular form
-    - N, the level of f.
+    - weights, list - a list of allowed weights for the Eisenstein series.
+    - base_ring, a ring over which computations will be done.
+    - hom, a homomorphism of the base ring of f into base_ring.
     OUTPUT:
     - sol, ind - A vector of coefficients for the linear combination and a
       list of indices to identify which product belongs to which coefficient.
@@ -47,7 +48,7 @@ def lin_comb(f, weights= False, verbose=False,base_ring=None):
     products, indexlist = product_space(chi,
                                         k,
                                         weights=weights,
-                                        base_ring=base_ring)
+                                        base_ring=base_ring, verbose=verbose)
     if verbose:
         print('Done: There are {} products with {} coefficients each.'.
                format(len(indexlist),len(products.rows()[0])))
@@ -56,27 +57,24 @@ def lin_comb(f, weights= False, verbose=False,base_ring=None):
     K = products.base_ring()
     solution = []
     B = f.base_ring()
-
     if B == QQ:
         coeffs = [0] + f.coefficients(prec)
     else:
-        L = K.composite_fields(B,'c')[0]
-        hom2 = B.Hom(L)[0]
-        coeffs = [0] + map(hom2, f.coefficients(prec))
+        if base_ring==None:
+            base_ring = K.composite_fields(B,'c')[0]
+        if hom==None:
+            hom = B.Hom(L)[0]
+        coeffs = [0] + map(hom, f.coefficients(prec))
         hom = K.Hom(L)[0]
-        products = Matrix(L, [[hom(products[i][j])
-                               for j in range(products.dimensions()[1])]
-                               for i in range(products.dimensions()[0])])
-
     try:
         solution = products.T.solve_right(vector(coeffs))
     except ValueError:
-        print("Couldn't write form as lin. comb. of Eis. series")
+        print("Could not write form as lin. comb. of Eisenstein series and products of Eisenstein series")
         return None
 
     return solution, indexlist
 
-def partial_AL_eigenvalue(f, S, base_ring=None, verbose = False,eis_alt=False):
+def AL_eigenvalue(f, S, base_ring=None, verbose = False,eis_alt=False):
     r"""
     Computes the Atkin-Lehner eigenvalue of an eigenform f. Warning: This function does not check if the input f is such an eigenform.
     INPUT:
@@ -124,7 +122,7 @@ def get_expansion(f, prec=2, cusp=Cusp(Infinity), group=None, base_ring=None, ve
     - ``group``, string or None -- the congruence group of f either 'Gamma0' or 'Gamma1'
     - base_ring - a ring that contains the coefficients of f and the root of unity zeta_{lcm(N,phi(N))}
     - ``verbose``, boolean - If True there will be text describing every step of the calculation
-    - ``eis_alt``, boolen = If True an alternative version of the eisenstein_series will be used in the calculation. This is merely for testing purposes.
+    - ``eis_alt``, boolean = If True an alternative version of the eisenstein_series will be used in the calculation. This is merely for testing purposes.
 
     OUTPUT:
 
@@ -146,7 +144,7 @@ def get_expansion(f, prec=2, cusp=Cusp(Infinity), group=None, base_ring=None, ve
     """
     if verbose:
         print('Finding coefficients of linear combination...')
-    sol, ind = lin_comb(f, base_ring=base_ring, verbose=verbose)
+    sol, ind = lin_comb(f, verbose=verbose)
     if verbose:
         print('{} coefficients are non-zero'.
               format(len([s for s in sol if s != 0])))
@@ -164,7 +162,7 @@ def get_expansion(f, prec=2, cusp=Cusp(Infinity), group=None, base_ring=None, ve
                        eis_alt=eis_alt)
 
 
-def combine_sol(N, coeffs, ind, prec=2, cusp=Cusp(Infinity), group='Gamma0', base_ring=None, verbose = False, eis_alt=False):
+def combine_sol(N, coeffs, ind, prec=2, cusp=Cusp(Infinity), group='Gamma0', base_ring=None, verbose = False, eis_alt=False, cmplx_embedding=None):
     r"""
     INPUT:
      - N, an int -- the level of the forms
@@ -233,6 +231,8 @@ def combine_sol(N, coeffs, ind, prec=2, cusp=Cusp(Infinity), group='Gamma0', bas
     if base_ring==None:
         Nbig = lcm(N, euler_phi(N))
         base_ring = CyclotomicField(Nbig)
+    if base_ring==CC and cmplx_embedding==None:
+        cmplx_embedding = 0
 
     if verbose:
         print('Calculations will be performed in the following field: {}'
@@ -283,7 +283,10 @@ def combine_sol(N, coeffs, ind, prec=2, cusp=Cusp(Infinity), group='Gamma0', bas
                              mat=gamma, base_ring=base_ring)
             E.pad(N)
             E.prune(width)
-            s = coeffs[i]*E if s == None else s + coeffs[i]*E
+            if base_ring != CC:
+                s = coeffs[i]*E if s == None else s + coeffs[i]*E
+            else:
+                s = coeffs[i].complex_embeddings()[cmplx_embedding]*E if s == None else s + coeffs[i].complex_embeddings()[cmplx_embedding]*E
         elif len(ind[i]) == 7:
             # ind[i] has the form [l, k-l, i, j, t1, t2, t]
             # corresponding to the product of Eisenstein series
@@ -322,7 +325,10 @@ def combine_sol(N, coeffs, ind, prec=2, cusp=Cusp(Infinity), group='Gamma0', bas
             E = E1*E2
             E.pad(N)
             E.prune(width)
-            s = coeffs[i]*E if s == None else s + coeffs[i]*E
+            if base_ring != CC:
+                s = coeffs[i]*E if s == None else s + coeffs[i]*E
+            else:
+                s = coeffs[i].complex_embeddings()[cmplx_embedding]*E if s == None else s + coeffs[i].complex_embeddings()[cmplx_embedding]*E
     if verbose:
         print('Done!')
     return s

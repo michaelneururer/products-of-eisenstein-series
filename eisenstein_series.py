@@ -167,7 +167,7 @@ def e_phipsi(phi,psi, k, t=1, prec=5, mat=Matrix([[1, 0], [0, 1]]), base_ring=No
     cp_list2 = [i for i in range(N2) if gcd(i,N2)==1]
 
     #Computation of the Fourier coefficients
-    ser = 0
+    ser = O(qN**floor(prec*N/gcd(N,g1*g2)))
     for n in range(1,ceil(prec*N/QQ(g1*g2))+1):
         f = 0
         for m in divisors(n)+map(lambda x:-x,divisors(n)):
@@ -177,7 +177,7 @@ def e_phipsi(phi,psi, k, t=1, prec=5, mat=Matrix([[1, 0], [0, 1]]), base_ring=No
                 if ((C/g1)*r1 - QQ(n)/QQ(m))%((N1*g)/g1) == 0:
                     for r2 in cp_list2:
                         if ((C/g2)*r2 - m)%((N2*g)/g2) == 0:
-                            b += chi2bar_vals[r2]*zeta_tmp**((n/m-(C/g1)*r1)/((N1*g)/g1)*(m-(C/g2)*r2)*((N2*g)/g2))
+                            b += chi2bar_vals[r2]*zeta_tmp**((n/m-(C/g1)*r1)/((N1*g)/g1)*(m-(C/g2)*r2)/((N2*g)/g2))
                     a += chi1bar_vals[r1]*b
             a *= sign(m)*m**(k-1)
             f += a
@@ -189,6 +189,10 @@ def e_phipsi(phi,psi, k, t=1, prec=5, mat=Matrix([[1, 0], [0, 1]]), base_ring=No
     gauss1 = base_ring(gauss_sum_corr(chi1.bar()))
     gauss2 = base_ring(gauss_sum_corr(chi2.bar()))
     zk = 2*(N2*t/QQ(g2))**(k-1)*(t/g)*gauss1*gauss2
+    #The following is a temporary fix for a bug in sage
+    if base_ring==CC:
+        G = DirichletGroup(N1*N2,CC)
+        G[0] #Otherwise chi1.bar().extend(N1*N2).base_extend(CC) or chi2.bar().extend(N1*N2).base_extend(CC) will produce an error
     #Constant term
     if N1.divides(C) and ZZ(C/N1).divides(t) and gcd(t/(C/N1),N1) == 1:
         ser += (-1)**(k-1)*gauss2/QQ(N2*(g2/g)**(k-1))*chi1bar_vals[(-A*t/g)%N1]*Sk(chi1.bar().extend(N1*N2).base_extend(base_ring)*chi2.extend(N1*N2).base_extend(base_ring),k)

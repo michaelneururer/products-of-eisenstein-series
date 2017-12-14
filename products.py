@@ -2,13 +2,17 @@ from sage.arith.srange import srange
 from sage.arith.all import lcm, divisors, euler_phi
 from sage.modular.dirichlet import DirichletGroup
 from sage.modular.modform.constructor import ModularForms
+from sage.modular.dims import dimension_modular_forms
 from sage.rings.power_series_ring import PowerSeriesRing
+from sage.rings.integer_ring import IntegerRing
 from sage.rings.number_field.number_field import CyclotomicField
 from sage.rings.complex_field import ComplexField, ComplexNumber
 from sage.rings.big_oh import O
 from sage.matrix.constructor import Matrix
 from sage.functions.log import exp
+from sage.modules.free_module_element import vector
 
+ZZ = IntegerRing()
 
 def eisenstein_series_at_inf(phi, psi, k, prec=10, t=1,base_ring=None):
     r"""
@@ -38,7 +42,6 @@ def eisenstein_series_at_inf(phi, psi, k, prec=10, t=1,base_ring=None):
     Ncyc = lcm([euler_phi(N1), euler_phi(N2)])
     if base_ring==None:
         base_ring = CyclotomicField(Ncyc)
-    phi, psi = phi.base_extend(base_ring), psi.base_extend(base_ring)
     Q = PowerSeriesRing(base_ring, 'q')
     q = Q.gen()
     s = O(q**prec)
@@ -60,11 +63,11 @@ def eisenstein_series_at_inf(phi, psi, k, prec=10, t=1,base_ring=None):
 
     for m in srange(1, prec/t):
         for n in srange(1,prec/t/m+1):
-            s += 2* phi(m) * psi(n) * n**(k-1) * q**(m*n*t)
+            s += 2* base_ring(phi(m)) * base_ring(psi(n)) * n**(k-1) * q**(m*n*t)
     return s+O(q**prec)
 
 
-def product_space(chi, k, weights = False, base_ring=None):
+def product_space(chi, k, weights = False, base_ring=None, verbose=False):
     r"""
     Computes all eisenstein series, and products of pairs of eisenstein series
     of lower weight, lying in the space of modular forms of weight $k$ and
@@ -79,6 +82,7 @@ def product_space(chi, k, weights = False, base_ring=None):
     WARNING: It is only for principal chi that we know that the resulting
     space is the whole space of modular forms.
     """
+
     if weights == False:
         weights = srange(1, k/2 + 1)
     weight_dict = {}
@@ -96,7 +100,10 @@ def product_space(chi, k, weights = False, base_ring=None):
     if chi(-1) != (-1)**k:
         raise ValueError('chi(-1)!=(-1)^k')
     sturm = ModularForms(N, k).sturm_bound()+1
-
+    if N>1:
+        target_dim = dimension_modular_forms(chi, k)
+    else:
+        target_dim = dimension_modular_forms(1, k)
     D = DirichletGroup(N)
     # product_space should ideally be called over number fields. Over complex
     # numbers the exact linear algebra solutions might not exist.
@@ -107,14 +114,17 @@ def product_space(chi, k, weights = False, base_ring=None):
     q = Q.gen()
 
     d = len(D)
-    prim_chars = [phi.primitive_character().minimize_base_ring() for phi in D]
+    prim_chars = [phi.primitive_character() for phi in D]
     divs = divisors(N)
 
-    products = []
-    eis_space = []
+    products = Matrix(base_ring,[])
     indexlist = []
-    eis_indexlist = []
-
+    rank = 0
+    if verbose:
+        print D
+        print 'Sturm bound', sturm
+        #TODO: target_dim needs refinment in the case of weight 2.
+        print 'Target dimension', target_dim
     for i in srange(0, d): # First character
         phi = prim_chars[i]
         M1 = phi.conductor()
@@ -129,8 +139,18 @@ def product_space(chi, k, weights = False, base_ring=None):
                     continue
                 #TODO: THE NEXT CONDITION NEEDS TO BE CORRECTED. THIS IS JUST A TEST
                 if phi.bar() == psi and not (k==2): #and i==0 and j==0 and t1==1):
-                    eis_space.append(eisenstein_series_at_inf(phi, psi, k, sturm, t1,base_ring).padded_list())
-                    eis_indexlist.append([k, i, j, t1])
+                    E = eisenstein_series_at_inf(phi, psi, k, sturm, t1,base_ring).padded_list()
+                    try:
+                        products.T.solve_right(vector(base_ring,E))
+                    except ValueError:
+                        products = Matrix(products.rows()+[E])
+                        indexlist.append([k, i, j, t1])
+                        rank+=1
+                        if verbose:
+                            print 'Added ', [k,i,j,t1]
+                            print 'Rank is now', rank
+                        if rank == target_dim:
+                            return products,indexlist
                 for t in divs:
                     if not M1*M2*t1*t in divs:
                         continue
@@ -148,9 +168,16 @@ def product_space(chi, k, weights = False, base_ring=None):
                             E1 = eisenstein_series_at_inf(phi, psi, l, sturm, t1*t, base_ring)
                             E2 = eisenstein_series_at_inf(phi**(-1), psi**(-1), k-l, sturm, t2*t, base_ring)
                             #If chi is non-principal this needs to be changed to be something like chi*phi^(-1) instead of phi^(-1)
-                            c = E1 * E2 + O(q**sturm)
-                            products.append(c.padded_list())
-                            indexlist.append([l, k-l, i, j, t1, t2, t])
-    products = Matrix(base_ring,eis_space + products)
-    indexlist = eis_indexlist + indexlist
+                            E = (E1 * E2 + O(q**sturm)).padded_list()
+                            try:
+                                products.T.solve_right(vector(base_ring,E))
+                            except ValueError:
+                                products = Matrix(products.rows()+[E])
+                                indexlist.append([l, k-l, i, j, t1, t2, t])
+                                rank+=1
+                                if verbose:
+                                    print 'Added ', [l, k-l, i, j, t1, t2, t]
+                                    print 'Rank', rank
+                                if rank == target_dim:
+                                    return products, indexlist
     return products, indexlist

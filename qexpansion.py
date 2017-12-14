@@ -3,8 +3,15 @@ from sage.rings.power_series_ring import PowerSeriesRing
 from sage.rings.big_oh import O
 from sage.arith.all import lcm
 from sage.rings.complex_field import ComplexField
+from sage.functions.log import exp
 
 ZZ = IntegerRing()
+
+def QExp(f, prec=10):
+    r"""
+    Converts a modular form to an element of the class QExpansion.
+    """
+    return QExpansion(f.level(),f.weight(),f.qexp(prec),1)
 
 class QExpansion:
     """
@@ -16,7 +23,7 @@ class QExpansion:
         self.weight = weight
         self.series = series
         self.param_level = param_level
-        self.prec = self.series.prec
+        self.prec = self.series.prec()
 
     def __eq__(self,other):
         if isinstance(other, QExpansion):
@@ -35,11 +42,11 @@ class QExpansion:
             self.pad(common_param_level)
             other.pad(common_param_level)
 
-            return QExpansion(level = self.level, 
-                              weight = 2*self.weight, 
-                              series = self.series * other.series, 
+            return QExpansion(level = self.level,
+                              weight = 2*self.weight,
+                              series = self.series * other.series,
                               param_level = self.param_level)
-        
+
         R = self.series.base_ring()
         if other in R:
             return QExpansion(level = self.level,
@@ -48,12 +55,13 @@ class QExpansion:
                               param_level = self.param_level)
 
         raise ValueError
-
     __rmul__ = __mul__
-    
+
+    def __neg__(self):
+        return (-1)*self
+
     def __div__(self, scalar):
         return self.__mul__(1/scalar)
-
     __rdiv__= __div__
 
     def __add__(self, other):
@@ -66,21 +74,19 @@ class QExpansion:
                               weight = self.weight,
                               series = self.series + other.series,
                               param_level = self.param_level)
-        
-        raise ValueError
 
+        raise ValueError
     __radd__ = __add__
 
     def __sub__(self, other):
         return self + (-1)*other
-
 
     def __getitem__(self, i):
         return self.series[i]
 
     def __len__(self):
         return len(self.series.padded_list())
-    
+
     def padded_list(self):
         return self.series.padded_list()
 
@@ -90,7 +96,7 @@ class QExpansion:
     def pad(self, target_param_level):
         """
         When constructed the q-expansions are in the default parameter $q_N$,
-        where $N$ is the level of the form.  When taking products, the 
+        where $N$ is the level of the form.  When taking products, the
         parameters should be in $q_{N'}$, where $N'$ is the target level.
         This helper function peforms that renormalization by padding with zeros.
         """
@@ -136,12 +142,21 @@ class QExpansion:
         self.series = s
         self.param_level = tar_param_level
 
+    def eval(self,tau,prec=10):
+        """
+        Evaluates the QExpansion with prec many terms at tau. Prec can be set to 'max', to use all available Fourier coefficients.
+        """
+        if prec == 'max':
+            prec = self.prec
+        pi = ComplexField(53).pi()
+        I = ComplexField(53).gen()
+        return sum([self[n]*ComplexField(53)(exp(2*pi*I*tau*n/self.param_level)) for n in range(prec)])
 
     def apply_triangular_matrix(self, delta):
         """
-        If self is a q-expansion and q = exp(2*pi*I*tau), then applying a 
-        triangular matrix [[a,b],[0,d]] to tau gives a well-defined 
-        q-expansion as long as the base ring contains zeta_d. 
+        If self is a q-expansion and q = exp(2*pi*I*tau), then applying a
+        triangular matrix [[a,b],[0,d]] to tau gives a well-defined
+        q-expansion as long as the base ring contains zeta_d.
         Warning: The correct slash-action would also multiply with det(delta)^k/2 but we carefully avoid that in all applications of apply_triangular_matrix.
         """
         R = self.series.base_ring()
