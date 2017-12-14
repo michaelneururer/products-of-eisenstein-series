@@ -138,7 +138,7 @@ def get_expansion(f, prec=2, cusp=Cusp(Infinity), group=None, base_ring=None, ve
         -1/11*q11 + 2/11*q11^2 + 1/11*q11^3 - 2/11*q11^4 - 1/11*q11^5 - 2/11*q11^6 + 2/11*q11^7 + 2/11*q11^9 + 2/11*q11^10 + O(q11^11)
 
         sage: f49 = Newforms(49)[0]
-        sage: get_expansion(f49, prec = 2, cusp = 1/7, verbose = False) #This might take a few minutes. Set verbose to True if you want updates on the status of the calculation
+        sage: get_expansion(f49, prec = 2, cusp = 1/7, verbose = False) #This might take a minute. Set verbose to True if you want updates on the status of the calculation
         (2/7*zeta294^77 - 6/7*zeta294^63 - 8/7*zeta294^56 + 5/7*zeta294^42 - 2/7*zeta294^28 - 4/7*zeta294^21 + 8/7*zeta294^7 + 3/7)*q1 + O(q1^2)
 
     """
