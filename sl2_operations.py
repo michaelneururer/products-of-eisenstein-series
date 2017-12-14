@@ -89,7 +89,7 @@ def shift_cusp(gamma,t):
     delta = gamma_2**(-1) * Matrix([[t,0],[0,1]]) * gamma
     return gamma_2, delta
 
-def moebius_transform(gamma,z):
+def moeb_trans(gamma,z):
     r"""
     Returns the Moebius transform of z under gamma.
     """
@@ -103,3 +103,7 @@ def moebius_transform(gamma,z):
         return Cusp(Infinity)
     else:
         return (a*z+b)/(c*z+d)
+
+def aut_factor(gamma,z):
+    _,_,c,d = gamma.list()
+    return c*z+d
