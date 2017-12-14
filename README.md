@@ -33,7 +33,7 @@ Example usage
 
 We use the program to calculate the Fourier expansion of the newform of level 11 and weight 2 at the cusp 1/11 (equivalent to i*infinity).
 
-sage: load('get_expansions.py')
-sage: f11 = Newforms(11)[0]
-sage: get_expansion(f11,cusp=1/11,prec=20,verbose=False)
-q1 - 2*q1^2 - q1^3 + 2*q1^4 + q1^5 + 2*q1^6 - 2*q1^7 - 2*q1^9 - 2*q1^10 + q1^11 - 2*q1^12 + 4*q1^13 + 4*q1^14 - q1^15 - 4*q1^16 - 2*q1^17 + 4*q1^18 + O(q1^20)
+    sage: load('get_expansions.py')
+    sage: f11 = Newforms(11)[0]
+    sage: get_expansion(f11,cusp=1/11,prec=20,verbose=False)
+    q1 - 2*q1^2 - q1^3 + 2*q1^4 + q1^5 + 2*q1^6 - 2*q1^7 - 2*q1^9 - 2*q1^10 + q1^11 - 2*q1^12 + 4*q1^13 + 4*q1^14 - q1^15 - 4*q1^16 - 2*q1^17 + 4*q1^18 + O(q1^20)
