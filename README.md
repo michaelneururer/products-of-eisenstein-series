@@ -31,10 +31,10 @@ along with modforms-db.  If not, see <http://www.gnu.org/licenses/>.
 Example usage
 ==============
 
-We use the program to calculate the Fourier expansion of the newform of level 11 and weight 2 at the cusp 1/11 (equivalent to i*infinity).
+We use the program to calculate the Fourier expansion of the newform of level 11 and weight 2 at the cusp 0.
 ```
     sage: load('get_expansions.py')
     sage: f11 = Newforms(11)[0]
-    sage: get_expansion(f11,cusp=1/11,prec=20,verbose=False)
-    q1 - 2*q1^2 - q1^3 + 2*q1^4 + q1^5 + 2*q1^6 - 2*q1^7 - 2*q1^9 - 2*q1^10 + q1^11 - 2*q1^12 + 4*q1^13 + 4*q1^14 - q1^15 - 4*q1^16 - 2*q1^17 + 4*q1^18 + O(q1^20)
+    sage: get_expansion(f11,cusp=0,prec=2,verbose=False) #Set verbose to True for more information on the status of the calculation
+    -1/11*q11 + 2/11*q11^2 + 1/11*q11^3 - 2/11*q11^4 - 1/11*q11^5 - 2/11*q11^6 + 2/11*q11^7 + 2/11*q11^9 + 2/11*q11^10 - 1/11*q11^11 + 2/11*q11^12 - 4/11*q11^13 - 4/11*q11^14 + 1/11*q11^15 + 4/11*q11^16 + 2/11*q11^17 - 4/11*q11^18 - 2/11*q11^20 - 2/11*q11^21 + O(q11^22)
 ```
