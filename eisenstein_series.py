@@ -144,7 +144,7 @@ def e_phipsi(phi,psi, k, t=1, prec=5, mat=Matrix([[1, 0], [0, 1]]), base_ring=No
     #The point of swapping mat with mat2 is that mat2 satisfies C|N, C>0, (A,N)=1 and N|B and our formulas for the coefficients require this condition.
     A,B,C,D = mat2.list()
     gamma = mat2*Tn*mat**(-1)
-    c_gamma = chi1(gamma[1][1])*chi2(gamma[1][1])
+    c_gamma = 1/(chi1(gamma[1][1])*chi2(gamma[1][1]))
     if base_ring == None:
         Nbig = lcm(N,euler_phi(N1*N2))
         base_ring = CyclotomicField(Nbig,'zeta'+str(Nbig))
