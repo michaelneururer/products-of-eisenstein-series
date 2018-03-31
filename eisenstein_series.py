@@ -122,7 +122,7 @@ def e_phipsi(phi,psi, k, t=1, prec=5, mat=Matrix([[1, 0], [0, 1]]), base_ring=No
      - phi, a primitive Dirichlet character
      - k, int -- the weight
      - t, int -- the shift
-     - prec, the desired absolute precision, can be fractional
+     - prec, the desired absolute precision, can be fractional. The expansion will be up to O(q_w^(floor(w*prec))), where w is the width of the cusp.
      - mat, a matrix - typically taking $i\infty$ to some other cusp
      - base_ring, a ring - the ring in which the modular forms are defined
     OUTPUT:
@@ -140,11 +140,10 @@ def e_phipsi(phi,psi, k, t=1, prec=5, mat=Matrix([[1, 0], [0, 1]]), base_ring=No
     N = t*N1*N2
     mat2, Tn = find_correct_matrix(mat,N)
     #By construction gamma = mat2 * Tn * mat**(-1) is in Gamma0(N) so if E is our Eisenstein series we can evaluate E|mat = chi(gamma) * E|mat2*Tn.
-    #Since E|mat2 has a Fourier expansion in qN, the matrix Tn acts as a a twist.
+    #Since E|mat2 has a Fourier expansion in qN, the matrix Tn acts as a a twist. The value c_gamma = chi(gamma) is calculated below.
     #The point of swapping mat with mat2 is that mat2 satisfies C|N, C>0, (A,N)=1 and N|B and our formulas for the coefficients require this condition.
     A,B,C,D = mat2.list()
     gamma = mat2*Tn*mat**(-1)
-    c_gamma = 1/(chi1(gamma[1][1])*chi2(gamma[1][1]))
     if base_ring == None:
         Nbig = lcm(N,euler_phi(N1*N2))
         base_ring = CyclotomicField(Nbig,'zeta'+str(Nbig))
@@ -194,6 +193,8 @@ def e_phipsi(phi,psi, k, t=1, prec=5, mat=Matrix([[1, 0], [0, 1]]), base_ring=No
         G = DirichletGroup(N1*N2,CC)
         G[0] #Otherwise chi1.bar().extend(N1*N2).base_extend(CC) or chi2.bar().extend(N1*N2).base_extend(CC) will produce an error
     #Constant term
+    #c_gamma comes from replacing mat with mat2.
+    c_gamma = chi1bar_vals[gamma[1][1]%N1]*chi2bar_vals[gamma[1][1]%N2]
     if N1.divides(C) and ZZ(C/N1).divides(t) and gcd(t/(C/N1),N1) == 1:
         ser += (-1)**(k-1)*gauss2/QQ(N2*(g2/g)**(k-1))*chi1bar_vals[(-A*t/g)%N1]*Sk(chi1.bar().extend(N1*N2).base_extend(base_ring)*chi2.extend(N1*N2).base_extend(base_ring),k)
     elif k==1 and N2.divides(C) and ZZ(C/N2).divides(t) and gcd(t/(C/N2),N2)==1:
