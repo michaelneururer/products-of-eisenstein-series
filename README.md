@@ -35,6 +35,12 @@ We use the program to calculate the Fourier expansion of the newform of level 11
 ```
     sage: load('get_expansions.py')
     sage: f11 = Newforms(11)[0]
-    sage: get_expansion(f11,cusp=0,prec=2,verbose=False) #Set verbose to True for more information on the status of the calculation
+    sage: get_expansion(f11,mat=0,prec=2,verbose=False) #Set verbose to True for more information on the status of the calculation
     -1/11*q11 + 2/11*q11^2 + 1/11*q11^3 - 2/11*q11^4 - 1/11*q11^5 - 2/11*q11^6 + 2/11*q11^7 + 2/11*q11^9 + 2/11*q11^10 - 1/11*q11^11 + 2/11*q11^12 - 4/11*q11^13 - 4/11*q11^14 + 1/11*q11^15 + 4/11*q11^16 + 2/11*q11^17 - 4/11*q11^18 - 2/11*q11^20 - 2/11*q11^21 + O(q11^22)
+```
+Fourier expansions of newform of level 49 and weight 2. Note that we can also set a fractional precision:
+```
+    sage: f49 = Newforms(49,2)[0]
+    sage: get_expansion(f49, prec = 13/49, mat = 0, verbose = False)
+    -1/49*q49 - 1/49*q49^2 + 1/49*q49^4 + 3/49*q49^8 + 3/49*q49^9 - 4/49*q49^11 + O(q49^13)
 ```
