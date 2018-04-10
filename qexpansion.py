@@ -116,7 +116,7 @@ class QExpansion:
                 s += self.series[int(i/shift)] * qN**i
             else:
                 s += 0 * qN**i
-        s += O(qN**(self.series.prec() * shift))
+        s += O(qN**(self.series.prec() * shift + shift -1))
         self.series = s
         self.param_level = target_param_level
 
