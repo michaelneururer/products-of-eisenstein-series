@@ -110,15 +110,15 @@ def AL_eigenvalue(f, S, base_ring=None, verbose = False,eis_alt=False):
     s = get_expansion(f,prec = QQ(i)/QQ(NS)+2, cusp = W, base_ring=base_ring, verbose = verbose, eis_alt=eis_alt)*NS**(k/2)
     return s[i*NS/s.param_level] * K(f1)**(-1)
 
-def get_expansion(f, prec=2, cusp=Cusp(Infinity), group=None, base_ring=None, verbose=False, eis_alt=False):
+def get_expansion(f, prec=2, mat=Cusp(Infinity), group=None, base_ring=None, verbose=False, eis_alt=False):
     r"""
     Computes the Fourier expansion of a modular form f of level N at an
     arbitrary cusp.
     INPUT:
 
     - ``f``, a modular form
-    - ``prec``, integer (default: 2) -- the required precision (if the width of the cusp is greater than 1 it might be useful to use a fractional value for prec)
-    - ``cusp``, a cusp of level N
+    - ``prec``, the desired absolute precision, can be fractional. The expansion will be up to O(q_w^(floor(w*prec))), where w is the width of the cusp.
+    - ``mat``, a matrix or a cusp. The result will be the Fourier expansion of f|mat. If mat is a cusp, then get_expansion chooses a matrix g in SL_2(Z) that maps infinity to mat.
     - ``group``, string or None -- the congruence group of f either 'Gamma0' or 'Gamma1'
     - base_ring - a ring that contains the coefficients of f and the root of unity zeta_{lcm(N,phi(N))}
     - ``verbose``, boolean - If True there will be text describing every step of the calculation
@@ -171,7 +171,7 @@ def combine_sol(N, coeffs, ind, prec=2, cusp=Cusp(Infinity), group='Gamma0', bas
        Eisenstein series.
      - ind, an array -- has same length as coeffs, entries of ind are parameters
       describing the Eisenstein series or product of Eisenstein series
-     - prec, an int -- the precision (default: 2)
+     - prec, the desired absolute precision, can be fractional. The expansion will be up to O(q_w^(floor(w*prec))), where w is the width of the cusp.
      - cusp, a Cusp or a matrix -- the cusp which we are computing the Fourier expansion at
      - group, a string or an arithgroup -- can be either Gamma0 or Gamma1
      - base_ring - a ring that contains the coefficients of f and the root of unity zeta_{lcm(N,phi(N))}
