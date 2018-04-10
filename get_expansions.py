@@ -132,13 +132,13 @@ def get_expansion(f, prec=2, mat=Cusp(Infinity), group=None, base_ring=None, ver
     ::
 
         sage: f11 = Newforms(11)[0]
-        sage: get_expansion(f11, prec = 5, cusp = Infinity)
+        sage: get_expansion(f11, prec = 5, mat = Infinity)
         q1 - 2*q1^2 - q1^3 + 2*q1^4 + O(q1^5)
-        sage: get_expansion(f11, prec = 1, cusp = 0)
-        -1/11*q11 + 2/11*q11^2 + 1/11*q11^3 - 2/11*q11^4 - 1/11*q11^5 - 2/11*q11^6 + 2/11*q11^7 + 2/11*q11^9 + 2/11*q11^10 + O(q11^11)
+        sage: get_expansion(f11, prec = 8/11, mat = 0)
+        -1/11*q11 + 2/11*q11^2 + 1/11*q11^3 - 2/11*q11^4 - 1/11*q11^5 - 2/11*q11^6 + 2/11*q11^7 + O(q11^8)
 
         sage: f49 = Newforms(49)[0]
-        sage: get_expansion(f49, prec = 2, cusp = 1/7, verbose = False) #This might take a minute. Set verbose to True if you want updates on the status of the calculation
+        sage: get_expansion(f49, prec = 2, mat = 1/7, verbose = False) #This might take a minute. Set verbose to True if you want updates on the status of the calculation
         (2/7*zeta294^77 - 6/7*zeta294^63 - 8/7*zeta294^56 + 5/7*zeta294^42 - 2/7*zeta294^28 - 4/7*zeta294^21 + 8/7*zeta294^7 + 3/7)*q1 + O(q1^2)
 
     """
@@ -155,14 +155,14 @@ def get_expansion(f, prec=2, mat=Cusp(Infinity), group=None, base_ring=None, ver
                        sol,
                        ind,
                        prec=prec,
-                       cusp=cusp,
+                       mat=mat,
                        group=group,
                        base_ring=base_ring,
                        verbose=verbose,
                        eis_alt=eis_alt)
 
 
-def combine_sol(N, coeffs, ind, prec=2, cusp=Cusp(Infinity), group='Gamma0', base_ring=None, verbose = False, eis_alt=False, cmplx_embedding=None):
+def combine_sol(N, coeffs, ind, prec=2, mat=Cusp(Infinity), group='Gamma0', base_ring=None, verbose = False, eis_alt=False, cmplx_embedding=None):
     r"""
     INPUT:
      - N, an int -- the level of the forms
@@ -172,7 +172,7 @@ def combine_sol(N, coeffs, ind, prec=2, cusp=Cusp(Infinity), group='Gamma0', bas
      - ind, an array -- has same length as coeffs, entries of ind are parameters
       describing the Eisenstein series or product of Eisenstein series
      - prec, the desired absolute precision, can be fractional. The expansion will be up to O(q_w^(floor(w*prec))), where w is the width of the cusp.
-     - cusp, a Cusp or a matrix -- the cusp which we are computing the Fourier expansion at
+     - ``mat``, a matrix or a cusp. The result will be the Fourier expansion of f|mat. If mat is a cusp, then get_expansion chooses a matrix g in SL_2(Z) that maps infinity to mat.
      - group, a string or an arithgroup -- can be either Gamma0 or Gamma1
      - base_ring - a ring that contains the coefficients of f and the root of unity zeta_{lcm(N,phi(N))}
      - verbose, a boolean -- set true to get information about progress through the
@@ -194,16 +194,16 @@ def combine_sol(N, coeffs, ind, prec=2, cusp=Cusp(Infinity), group='Gamma0', bas
     elif group == Gamma1(N):
         tp = 1
     try:
-        cusp = Cusp(cusp)
+        cusp = Cusp(mat)
         cusps = group.cusps()
         for c in cusps:
             if tp == 0:
                 if c.is_gamma0_equiv(cusp, N):
-                    cusp = c
+                    mat = c
                     break
             if tp == 1:
                 if c.is_gamma1_equiv(cusp, N):
-                    cusp = c
+                    mat = c
                     break
         a1 = cusp.numerator()
         c1 = cusp.denominator()
@@ -211,7 +211,7 @@ def combine_sol(N, coeffs, ind, prec=2, cusp=Cusp(Infinity), group='Gamma0', bas
         gamma = complete_column(a1,c1)
 
     except TypeError:
-        gamma = cusp
+        gamma = mat
         if gamma[1][0] == 0:
             cusp = Cusp(Infinity)
         else:
@@ -221,7 +221,7 @@ def combine_sol(N, coeffs, ind, prec=2, cusp=Cusp(Infinity), group='Gamma0', bas
     width = group.cusp_width(cusp)
 
     if verbose:
-        print('Matrix that maps Infinity to {}:'.format(cusp), gamma)
+        print('Matrix that maps Infinity to {}:'.format(mat), gamma)
         print('Width of cusp:', width)
 
     D = DirichletGroup(N)
