@@ -295,7 +295,6 @@ def combine_sol(N, coeffs, ind, prec=2, mat=Cusp(Infinity), group='Gamma0', base
             phi, psi = prim_chars[i1], prim_chars[i2]
             if verbose:
                 print('Product of Eisenstein series of index', ind[i])
-
             if not eis_alt:
                 E1 = e_phipsi(phi,
                               psi,

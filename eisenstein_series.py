@@ -1,5 +1,3 @@
-import pdb
-
 from sage.modular.cusps import Cusp
 from sage.modular.arithgroup.congroup_gamma0 import Gamma0_constructor
 from sage.modular.arithgroup.congroup_gamma1 import Gamma1_constructor
@@ -98,7 +96,7 @@ def qm(f,k):
     #Polynomial in Lemma 5.3 time -f (so that it has integer coefficients. Corresponds to 1/(z-1)
     A = sum([(f-m-1)*t**m for m in range(f-1)])
     B = Pk(x,k-1)
-    return (-1/f)**k * Q(B) * A**k
+    return (-1/f)**k * Q(B) * A**int(k)
 def Sk(chi,k):
     #Used to calculate constant term of Eisenstein series.
     M = chi.level()
