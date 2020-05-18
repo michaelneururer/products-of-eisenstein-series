@@ -121,10 +121,10 @@ def product_space(chi, k, weights = False, base_ring=None, verbose=False):
     indexlist = []
     rank = 0
     if verbose:
-        print D
-        print 'Sturm bound', sturm
+        print(D)
+        print('Sturm bound', sturm)
         #TODO: target_dim needs refinment in the case of weight 2.
-        print 'Target dimension', target_dim
+        print('Target dimension', target_dim)
     for i in srange(0, d): # First character
         phi = prim_chars[i]
         M1 = phi.conductor()
@@ -147,8 +147,8 @@ def product_space(chi, k, weights = False, base_ring=None, verbose=False):
                         indexlist.append([k, i, j, t1])
                         rank+=1
                         if verbose:
-                            print 'Added ', [k,i,j,t1]
-                            print 'Rank is now', rank
+                            print('Added ', [k,i,j,t1])
+                            print('Rank is now', rank)
                         if rank == target_dim:
                             return products,indexlist
                 for t in divs:
@@ -176,8 +176,8 @@ def product_space(chi, k, weights = False, base_ring=None, verbose=False):
                                 indexlist.append([l, k-l, i, j, t1, t2, t])
                                 rank+=1
                                 if verbose:
-                                    print 'Added ', [l, k-l, i, j, t1, t2, t]
-                                    print 'Rank', rank
+                                    print('Added ', [l, k-l, i, j, t1, t2, t])
+                                    print('Rank', rank)
                                 if rank == target_dim:
                                     return products, indexlist
     return products, indexlist

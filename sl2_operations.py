@@ -53,7 +53,7 @@ def complete_column(a,c,i = 1):
     - A matrix in SL_2(Z) with i-th column [a,c]
     """
     if gcd(a,c)>1:
-        raise ValueError,'Input needs to be coprime'
+        raise ValueError('Input needs to be coprime')
     _, d, b = xgcd(a, c)
     b = -b
     if i == 1:
@@ -72,7 +72,7 @@ def complete_row(a,c,i = 1):
     - A matrix in SL_2(Z) with i-th column [a,c]
     """
     if gcd(a,c)>1:
-        raise ValueError,'Input needs to be coprime'
+        raise ValueError('Input needs to be coprime')
     return complete_column(a,c,i).T
 
 def shift_cusp(gamma,t):
