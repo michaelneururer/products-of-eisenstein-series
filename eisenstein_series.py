@@ -46,7 +46,7 @@ def find_correct_matrix(M,N):
     Given a matrix M1 that maps infinity to a/c this returns a matrix M2 Matrix([[A,B],[C,D]]) that maps infinity to a Gamma0(N)-equivalent cusp A/C and satisfies, C|N, C>0, (A,N)=1 and N|B.
     It also returns T^n = Matrix([[1,n],[0,1]]) such that M2*T^n*M1**(-1) is in Gamma0(N).
     """
-    a,b,c,d = map(lambda x: ZZ(x), M.list())
+    a,b,c,d = list(map(lambda x: ZZ(x), M.list()))
     if (c>0 and c.divides(N) and gcd(a,N) == 1 and b%N == 0):
         return M, identity_matrix(2)
     if c == 0:
@@ -167,7 +167,7 @@ def e_phipsi(phi,psi, k, t=1, prec=5, mat=Matrix([[1, 0], [0, 1]]), base_ring=No
     ser = O(qN**floor(prec*N/gcd(N,g1*g2)))
     for n in range(1,ceil(prec*N/QQ(g1*g2))+1):
         f = 0
-        for m in divisors(n)+map(lambda x:-x,divisors(n)):
+        for m in divisors(n)+list(map(lambda x:-x,divisors(n))):
             a=0
             for r1 in cp_list1:
                 b = 0

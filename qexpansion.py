@@ -111,7 +111,7 @@ class QExpansion:
         Q = PowerSeriesRing(R, 'q'+str(target_param_level))
         qN = Q.gen()
         s = 0
-        for i in xrange(self.series.prec() * shift):
+        for i in range(self.series.prec() * shift):
             if i % shift == 0:
                 s += self.series[int(i/shift)] * qN**i
             else:
@@ -136,7 +136,7 @@ class QExpansion:
         q = Q.gen()
 
         s = 0
-        for i in xrange(self.series.prec() * tar_param_level // self.param_level):
+        for i in range(self.series.prec() * tar_param_level // self.param_level):
             s += self.series[i * (self.param_level // tar_param_level)] * q**i
         s += O(q**(self.series.prec() * tar_param_level // self.param_level))
         self.series = s
@@ -170,7 +170,7 @@ class QExpansion:
         Q = PowerSeriesRing(R, 'q'+str(self.param_level*d2))
         qNd = Q.gen()
         s = 0
-        for i in xrange(self.series.prec()):
+        for i in range(self.series.prec()):
             s += self.series[i] * zetad**(i*b2) * qNd**(i*a2)
         s = s + O(qNd**(self.series.prec()))
         s = s * d**(-self.weight)

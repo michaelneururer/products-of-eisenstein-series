@@ -255,7 +255,7 @@ def combine_sol(N, coeffs, ind, prec=2, mat=Cusp(Infinity), group='Gamma0', base
     if verbose:
         nonzero = len([0 for c in coeffs if c != 0])
         nonzero_counter = 1
-    for i in xrange(len(coeffs)):
+    for i in range(len(coeffs)):
         if coeffs[i] == 0:
             continue
         if verbose:
